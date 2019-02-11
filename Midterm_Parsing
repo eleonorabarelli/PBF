@@ -1,0 +1,22 @@
+file = open('insulin.gbk')
+outfile = open('insulin.fasta', 'w')
+
+header = '>'
+sequence = None
+seqstring = ''
+
+for line in file:
+    splitted = line.split()
+    if len(splitted) != 0 and splitted[0] == 'ACCESSION':
+        header += splitted[1] + '|'
+    elif len(splitted) != 0 and splitted[0] == 'ORGANISM':
+        header += splitted[1] + ' ' + splitted[2] + '\n'
+    elif len(splitted) != 0 and splitted[0] == 'ORIGIN':
+        sequence = True
+    if sequence == True and len(splitted) != 0:
+        listline = line.split()[1::]
+        stringline = ''.join(listline)
+        seqstring += stringline
+
+outfile.write(header + seqstring.upper())
+outfile.close()
