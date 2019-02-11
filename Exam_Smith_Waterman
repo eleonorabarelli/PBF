@@ -1,0 +1,74 @@
+sub_dic = {'AA':2, 'AC':1, 'AG':1, 'AT':-1,
+           'CA':1, 'CC':2, 'CG':0, 'CT':1,
+           'GA':1, 'GC':0, 'GG':2, 'GT':-1,
+           'TA':-1, 'TC':1, 'TG':-1, 'TT':2}
+
+def gap(d):
+    return -d
+
+s1 = 'ACTAG'
+s2 = 'AGTCGA'
+
+def empty_matrix(m,n,el):
+    matrix = []
+    for i in range(m):
+        matrix.append([])
+        for j in range(n):
+            matrix[i].append(el)
+
+    return matrix
+
+def Smith_Waterman(s1, s2, sub_dic, d):
+    S1 = s1.upper()
+    S2 = s2.upper()
+
+    m = len(S2) + 2
+    n = len(S1) + 2
+
+    score = empty_matrix(m, n, 0)
+    traceback = empty_matrix(m, n, '')
+
+    score[0][0] = ''
+    score[0][1] = '0'
+    for i in range(len(S1)):
+        score[0][i+2] = S1[i]
+    score[1][0] = '0'
+    for i in range(len(S2)):
+        score[i+2][0] = S2[i]
+    traceback[0][1] = '0'
+    for i in range(len(S1)):
+        traceback[0][i+2] = S1[i]
+    traceback[1][0] = '0'
+    for i in range(len(S2)):
+        traceback[i+2][0] = S2[i]
+
+    score[1][1] = 0
+
+    for i in range(2, m):
+        for j in range(2, n):
+            l = [score[i-1][j-1] + sub_dic[score[i][0] + score[0][j]],
+                 score[i-1][j] + gap(d),
+                 score[i][j-1] + gap(d),
+                 0]
+            score[i][j] = max(l)
+            if score[i][j] == l[0]:
+                traceback[i][j] += '\\'
+            if score[i][j] == l[1]:
+                traceback[i][j] += '|'
+            if score[i][j] == l[2]:
+                traceback[i][j] += '-'
+            if score[i][j] == l[3]:
+                traceback[i][j] += '0'
+
+    M = 0
+    iM = 1
+    jM = 1
+
+    for i in range(1, m):
+        for j in range(1, n):
+            if score[i][j] > M:
+                M = score[i][j]
+                iM = i
+                jM = j
+
+    return score, traceback, (iM, jM), M
